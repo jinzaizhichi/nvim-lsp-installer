@@ -1,6 +1,7 @@
 local fetch = require "nvim-lsp-installer.core.fetch"
 local Data = require "nvim-lsp-installer.data"
 local log = require "nvim-lsp-installer.log"
+local process = require "nvim-lsp-installer.process"
 
 local list_find_first = Data.list_find_first
 
@@ -19,7 +20,12 @@ function M.fetch_releases(repo, callback)
             return callback("Failed to fetch GitHub releases.", nil)
         end
         callback(nil, vim.json.decode(response))
-    end)
+    end, {
+        custom_fetcher = {
+            cmd = "gh",
+            args = { "api", ("repos/%s/releases"):format(repo) },
+        },
+    })
 end
 
 ---@alias FetchLatestGithubReleaseOpts {tag_name_pattern:string}
@@ -62,7 +68,12 @@ function M.fetch_tags(repo, callback)
             return callback("Failed to fetch tags.", nil)
         end
         callback(nil, vim.json.decode(response))
-    end)
+    end, {
+        custom_fetcher = {
+            cmd = "gh",
+            args = { "api", ("repos/%s/tags"):format(repo) },
+        },
+    })
 end
 
 ---@param repo string The GitHub repo ("username/repo").
